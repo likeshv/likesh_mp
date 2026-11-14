@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Quiz System</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    width: 100%;
+    max-width: 550px;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px #333;
+}
+
+h1 {
+    text-align: center;
+    color: #5b4bc4;
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    background: #5b4bc4;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #392b91;
+}
+
+.option {
+    background: #eee;
+    color: #222;
+    text-align: left;
+}
+
+.option:hover {
+    background: #dcd5ff;
+}
+
+.option.selected {
+    background: #5b4bc4;
+    color: white;
+}
+
+#quiz, #result {
+    display: none;
+}
+
+#question {
+    margin: 20px 0;
+}
+
+#progress {
+    color: #666;
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div id="welcome">
+        <h1>ONLINE QUIZ</h1>
+        <p>Welcome to the Online Quiz System!</p>
+
+        <input type="text" id="studentName"
+        placeholder="Enter your name">
+
+        <button onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz">
+        <h1>ONLINE QUIZ</h1>
+        <p id="progress"></p>
+        <h3 id="question"></h3>
+        <div id="options"></div>
+
+        <button onclick="nextQuestion()" id="nextBtn">
+            Next Question
+        </button>
+    </div>
+
+    <div id="result">
+        <h1>Quiz Completed!</h1>
+        <h2 id="studentResult"></h2>
+        <h2 id="score"></h2>
+        <p id="message"></p>
+
+        <button onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+
+</div>
+
+<script>
+
+const questions = [
+    {
+        question: "1. What does HTML stand for?",
+        options: [
+            "Hyper Text Markup Language",
+            "High Text Machine Language",
+            "Hyper Transfer Markup Language",
+            "Home Tool Markup Language"
+        ],
+        answer: 0
+    },
+    {
+        question: "2. Which language is used for styling web pages?",
+        options: ["C", "CSS", "Java", "Python"],
+        answer: 1
+    },
+    {
+        question: "3. Which tag is used for the largest heading?",
+        options: ["<h6>", "<head>", "<h1>", "<p>"],
+        answer: 2
+    },
+    {
+        question: "4. Which language makes a webpage interactive?",
+        options: ["HTML", "CSS", "JavaScript", "SQL"],
+        answer: 2
+    },
+    {
+        question: "5. Which company developed Java?",
+        options: ["Microsoft", "Sun Microsystems", "Google", "Apple"],
+        answer: 1
+    }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let selectedAnswer = -1;
+let student = "";
+
+function startQuiz() {
+    student = document.getElementById("studentName").value.trim();
+
+    if (student === "") {
+        alert("Please enter your name!");
+        return;
+    }
+
+    document.getElementById("welcome").style.display = "none";
+    document.getElementById("quiz").style.display = "block";
+
+    showQuestion();
+}
+
+function showQuestion() {
+    selectedAnswer = -1;
+
+    let q = questions[currentQuestion];
+
+    document.getElementById("progress").innerText =
+        "Question " + (currentQuestion + 1) +
+        " of " + questions.length;
+
+    document.getElementById("question").innerText = q.question;
+
+    let optionsHTML = "";
+
+    q.options.forEach((option, index) => {
+        optionsHTML += `
+            <button class="option"
+            onclick="selectAnswer(${index})">
+            ${option}
+            </button>
+        `;
+    });
+
+    document.getElementById("options").innerHTML = optionsHTML;
+
+    document.getElementById("nextBtn").innerText =
+        currentQuestion === questions.length - 1
+        ? "Submit Quiz" : "Next Question";
+}
+
+function selectAnswer(index) {
+    selectedAnswer = index;
+
+    let buttons = document.querySelectorAll(".option");
+
+    buttons.forEach((button, i) => {
+        button.classList.toggle("selected", i === index);
+    });
+}
+
+function nextQuestion() {
+    if (selectedAnswer === -1) {
+        alert("Please select an answer!");
+        return;
+    }
+
+    if (selectedAnswer === questions[currentQuestion].answer) {
+        score++;
+    }
+
+    currentQuestion++;
+
+    if (currentQuestion < questions.length) {
+        showQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+    document.getElementById("quiz").style.display = "none";
+    document.getElementById("result").style.display = "block";
+
+    document.getElementById("studentResult").innerText =
+        "Student Name: " + student;
+
+    document.getElementById("score").innerText =
+        "Your Score: " + score + " / " + questions.length;
+
+    document.getElementById("message").innerText =
+        score >= 3 ? "Excellent! Well Done!" : "Good Try! Keep Practicing!";
+}
+
+function restartQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    selectedAnswer = -1;
+
+    document.getElementById("result").style.display = "none";
+    document.getElementById("welcome").style.display = "block";
+    document.getElementById("studentName").value = "";
+}
+
+</script>
+
+</body>
+</html>
